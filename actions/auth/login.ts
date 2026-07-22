@@ -2,10 +2,11 @@
 
 
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { verifyPassword } from "@/lib/auth/password";
 import { createToken } from "@/lib/auth/jwt";
+
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+
 
 
 export async function loginAction(
@@ -13,70 +14,96 @@ export async function loginAction(
  password:string
 ){
 
- const user =
-   await prisma.user.findUnique({
-     where:{
-       email
-     }
-   });
+
+try{
 
 
- if(!user){
-
-   return {
-     error:"Invalid email or password"
-   };
-
- }
-
+const user =
+await prisma.user.findUnique({
+where:{
+ email
+}
+});
 
 
- const passwordMatch =
-   await bcrypt.compare(
-     password,
-     user.password
-   );
+if(!user){
 
+return {
+error:"Invalid email or password"
+};
 
- if(!passwordMatch){
-
-   return {
-     error:"Invalid email or password"
-   };
-
- }
+}
 
 
 
- const token =
-   await createToken({
-
-     id:user.id,
-     email:user.email,
-     role:user.role
-
-   });
+const valid =
+await verifyPassword(
+ password,
+ user.password
+);
 
 
 
- const cookieStore =
-   await cookies();
+if(!valid){
+
+return {
+error:"Invalid email or password"
+};
+
+}
 
 
- cookieStore.set(
-   "token",
-   token,
-   {
-     httpOnly:true,
-     secure:
-       process.env.NODE_ENV==="production",
-     sameSite:"lax",
-     maxAge:
-       60 * 60 * 24 * 7
-   }
- );
+
+const token =
+await createToken({
+
+id:user.id,
+email:user.email,
+role:user.role
+
+});
 
 
- redirect("/dashboard");
+
+const cookieStore =
+await cookies();
+
+
+
+cookieStore.set(
+"token",
+token,
+{
+httpOnly:true,
+secure:
+process.env.NODE_ENV==="production",
+
+sameSite:"lax",
+
+maxAge:
+60*60*24*7,
+
+path:"/"
+}
+);
+
+
+
+return {
+success:true
+};
+
+
+
+}catch(error){
+
+console.error(error);
+
+return {
+error:"Something went wrong"
+};
+
+}
+
 
 }

@@ -1,48 +1,41 @@
 import { SignJWT, jwtVerify } from "jose";
 
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET
-);
+const secret =
+  new TextEncoder().encode(
+    process.env.JWT_SECRET
+  );
 
 
+export async function createToken(
+  payload:{
+    id:string;
+    email:string;
+    role:string;
+  }
+){
 
-export async function createToken(data:{
-  id:string;
-  email:string;
-  role:string;
-}){
-
-  return await new SignJWT(data)
-    .setProtectedHeader({
-      alg:"HS256"
-    })
-    .setIssuedAt()
-    .setExpirationTime("7d")
-    .sign(secret);
+return new SignJWT(payload)
+.setProtectedHeader({
+  alg:"HS256"
+})
+.setIssuedAt()
+.setExpirationTime("7d")
+.sign(secret);
 
 }
 
 
 
 export async function verifyToken(
-  token:string
+ token:string
 ){
 
-  try{
+const {payload}=await jwtVerify(
+ token,
+ secret
+);
 
-    const {payload} =
-      await jwtVerify(
-        token,
-        secret
-      );
-
-    return payload;
-
-  }catch(error){
-
-    return null;
-
-  }
+return payload;
 
 }

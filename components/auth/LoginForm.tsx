@@ -1,425 +1,546 @@
 "use client";
 
-import { useState } from "react";
-import { loginAction } from "@/actions/auth/login";
+
 import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Headphones,
-  ShieldCheck,
+useState
+} from "react";
+
+
+import {
+useRouter
+} from "next/navigation";
+
+
+import {
+loginAction
+} from "@/actions/auth/login";
+
+
+import {
+Mail,
+Lock,
+Eye,
+EyeOff,
+Headphones
 } from "lucide-react";
 
 
-export default function LoginForm() {
 
-  const [email,setEmail] = useState("");
-  const [password,setPassword] = useState("");
-  const [showPassword,setShowPassword] = useState(false);
-  const [error,setError] = useState("");
-  const [loading,setLoading] = useState(false);
 
+const demos=[
 
-  async function handleSubmit(
-    e:React.FormEvent
-  ){
+{
+name:"Manager",
+email:"manager1@company.com"
+},
 
-    e.preventDefault();
+{
+name:"Technical",
+email:"tech1@company.com"
+},
 
-    setError("");
-    setLoading(true);
+{
+name:"Employee",
+email:"emp1@company.com"
+}
 
+];
 
-    const result =
-      await loginAction(
-        email,
-        password
-      );
 
 
-    if(result?.error){
 
-      setError(result.error);
-      setLoading(false);
+export default function LoginForm(){
 
-    }
 
-  }
+const router =
+useRouter();
 
 
-  return (
 
-    <div className="relative">
+const [email,setEmail]
+=
+useState("");
 
+const [password,setPassword]
+=
+useState("");
 
-      {/* background decoration */}
+const [show,setShow]
+=
+useState(false);
 
-      <div className="absolute -top-20 -left-20 h-40 w-40 rounded-full bg-blue-500/30 blur-3xl"/>
 
-      <div className="absolute -bottom-20 -right-20 h-40 w-40 rounded-full bg-cyan-400/30 blur-3xl"/>
+const [error,setError]
+=
+useState("");
 
+const [loading,setLoading]
+=
+useState(false);
 
 
-      <div
-        className="
-        relative
-        rounded-3xl
-        border
-        border-white/20
-        bg-white/10
-        p-8
-        shadow-2xl
-        backdrop-blur-xl
-        "
-      >
 
 
-        {/* Logo */}
+async function submit(
+e:React.FormEvent
+){
 
-        <div className="mb-8 flex justify-center">
+e.preventDefault();
 
-          <div
-            className="
-            flex
-            h-16
-            w-16
-            items-center
-            justify-center
-            rounded-2xl
-            bg-gradient-to-br
-            from-blue-600
-            to-cyan-400
-            shadow-lg
-            "
-          >
 
-            <Headphones
-              className="text-white"
-              size={32}
-            />
+setError("");
 
-          </div>
+setLoading(true);
 
-        </div>
 
 
+const result =
+await loginAction(
+email,
+password
+);
 
-        <div className="text-center">
 
 
-          <h1
-            className="
-            text-3xl
-            font-bold
-            tracking-tight
-            text-white
-            "
-          >
-            Helpdesk Portal
-          </h1>
+if(result.error){
 
+setError(
+result.error
+);
 
-          <p
-            className="
-            mt-2
-            text-sm
-            text-slate-300
-            "
-          >
-            Manage tickets. Resolve issues. Work smarter.
-          </p>
+setLoading(false);
 
+return;
 
-        </div>
+}
 
 
 
+router.push(
+"/dashboard"
+);
 
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 space-y-5"
-        >
 
 
+}
 
-          {/* Email */}
 
-          <div>
 
 
-            <label
-              className="
-              mb-2
-              block
-              text-sm
-              font-medium
-              text-slate-200
-              "
-            >
-              Email Address
-            </label>
 
+return (
 
+<div
+className="
+w-full
+max-w-md
+rounded-3xl
+border
+border-white/20
+bg-white/10
+p-8
+shadow-2xl
+backdrop-blur-xl
+"
+>
 
-            <div className="relative">
 
+<div
+className="
+flex
+justify-center
+mb-6
+"
+>
 
-              <Mail
-                size={18}
-                className="
-                absolute
-                left-4
-                top-1/2
-                -translate-y-1/2
-                text-slate-400
-                "
-              />
+<div
+className="
+h-16
+w-16
+rounded-2xl
+bg-gradient-to-br
+from-blue-600
+to-cyan-400
+flex
+items-center
+justify-center
+"
+>
 
+<Headphones
+className="text-white"
+size={32}
+/>
 
 
-              <input
+</div>
 
-                type="email"
+</div>
 
-                value={email}
 
-                onChange={
-                  e=>setEmail(e.target.value)
-                }
 
-                placeholder="manager1@company.com"
+<h1
+className="
+text-center
+text-3xl
+font-bold
+text-white
+"
+>
 
-                className="
-                w-full
-                rounded-xl
-                border
-                border-white/20
-                bg-white/10
-                py-3
-                pl-11
-                pr-4
-                text-white
-                outline-none
-                placeholder:text-slate-400
-                focus:border-cyan-400
-                focus:ring-2
-                focus:ring-cyan-400/30
-                "
+Helpdesk Portal
 
-                required
+</h1>
 
-              />
 
 
-            </div>
+<p
+className="
+text-center
+text-slate-300
+mt-2
+"
+>
 
+Enterprise Ticket Management
 
-          </div>
+</p>
 
 
 
+<form
+onSubmit={submit}
+className="
+mt-8
+space-y-5
+"
+>
 
 
-          {/* Password */}
 
-          <div>
+<div>
 
+<label
+className="
+text-white
+text-sm
+"
+>
+Email
+</label>
 
-            <label
-              className="
-              mb-2
-              block
-              text-sm
-              font-medium
-              text-slate-200
-              "
-            >
-              Password
-            </label>
 
+<div
+className="
+relative
+mt-2
+"
+>
 
+<Mail
+className="
+absolute
+left-3
+top-3
+text-slate-400
+"
+/>
 
-            <div className="relative">
 
+<input
 
-              <Lock
-                size={18}
-                className="
-                absolute
-                left-4
-                top-1/2
-                -translate-y-1/2
-                text-slate-400
-                "
-              />
+value={email}
 
+onChange={
+e=>setEmail(
+e.target.value
+)
+}
 
+type="email"
 
-              <input
+required
 
-                type={
-                  showPassword
-                  ? "text"
-                  : "password"
-                }
+placeholder="manager1@company.com"
 
-                value={password}
+className="
+w-full
+rounded-xl
+bg-white/10
+border
+border-white/20
+p-3
+pl-10
+text-white
+outline-none
+"
 
-                onChange={
-                  e=>setPassword(e.target.value)
-                }
+/>
 
-                placeholder="••••••••"
+</div>
 
-                className="
-                w-full
-                rounded-xl
-                border
-                border-white/20
-                bg-white/10
-                py-3
-                pl-11
-                pr-12
-                text-white
-                outline-none
-                placeholder:text-slate-400
-                focus:border-cyan-400
-                focus:ring-2
-                focus:ring-cyan-400/30
-                "
+</div>
 
-                required
 
-              />
 
 
 
-              <button
+<div>
 
-                type="button"
+<label
+className="
+text-white
+text-sm
+"
+>
+Password
+</label>
 
-                onClick={()=>
-                  setShowPassword(!showPassword)
-                }
 
-                className="
-                absolute
-                right-4
-                top-1/2
-                -translate-y-1/2
-                text-slate-400
-                "
+<div
+className="
+relative
+mt-2
+"
+>
 
-              >
 
-                {
-                  showPassword
-                  ?
-                  <EyeOff size={18}/>
-                  :
-                  <Eye size={18}/>
-                }
+<Lock
+className="
+absolute
+left-3
+top-3
+text-slate-400
+"
+/>
 
 
-              </button>
 
+<input
 
 
-            </div>
+value={password}
 
 
-          </div>
+onChange={
+e=>setPassword(
+e.target.value
+)
+}
 
 
+type={
+show
+?
+"text"
+:
+"password"
+}
 
 
+required
 
-          {
-            error &&
 
-            <div
-              className="
-              rounded-xl
-              border
-              border-red-400/30
-              bg-red-500/10
-              p-3
-              text-sm
-              text-red-300
-              "
-            >
+placeholder="password123"
 
-              {error}
 
-            </div>
+className="
+w-full
+rounded-xl
+bg-white/10
+border
+border-white/20
+p-3
+pl-10
+pr-10
+text-white
+outline-none
+"
 
-          }
+/>
 
 
 
+<button
 
-          <button
+type="button"
 
-            disabled={loading}
+onClick={()=>
+setShow(!show)
+}
 
-            className="
-            flex
-            w-full
-            items-center
-            justify-center
-            gap-2
-            rounded-xl
-            bg-gradient-to-r
-            from-blue-600
-            to-cyan-500
-            py-3
-            font-semibold
-            text-white
-            shadow-lg
-            transition
-            hover:scale-[1.02]
-            hover:shadow-cyan-500/30
-            disabled:opacity-50
-            "
+className="
+absolute
+right-3
+top-3
+text-slate-400
+"
 
-          >
+>
 
-            {
-              loading
-              ?
-              "Signing in..."
-              :
-              <>
-              <ShieldCheck size={18}/>
-              Sign in securely
-              </>
-            }
+{
+show
+?
+<EyeOff size={18}/>
+:
+<Eye size={18}/>
+}
 
+</button>
 
-          </button>
 
+</div>
 
 
-        </form>
+</div>
 
 
-        <p
-          className="
-          mt-8
-          text-center
-          text-xs
-          text-slate-400
-          "
-        >
-          Enterprise Helpdesk Management System
-        </p>
 
 
-      </div>
+{
+error &&
 
+<div
+className="
+rounded-lg
+bg-red-500/20
+p-3
+text-sm
+text-red-300
+"
+>
 
-    </div>
+{error}
 
-  );
+</div>
+
+}
+
+
+
+<button
+
+disabled={loading}
+
+className="
+w-full
+rounded-xl
+bg-gradient-to-r
+from-blue-600
+to-cyan-500
+py-3
+font-semibold
+text-white
+"
+
+>
+
+{
+loading
+?
+"Signing in..."
+:
+"Sign In"
+}
+
+</button>
+
+
+
+</form>
+
+
+
+
+
+<div
+className="mt-8"
+>
+
+<p
+className="
+text-sm
+text-slate-300
+mb-3
+"
+>
+Demo Accounts
+</p>
+
+
+
+<div
+className="
+space-y-2
+"
+>
+
+{
+demos.map(
+demo=>(
+
+<button
+
+key={demo.email}
+
+type="button"
+
+onClick={()=>{
+
+setEmail(
+demo.email
+);
+
+setPassword(
+"password123"
+);
+
+}}
+
+className="
+w-full
+rounded-lg
+border
+border-white/20
+bg-white/5
+p-3
+text-left
+text-white
+hover:bg-white/10
+"
+
+>
+
+{demo.name}
+
+<div
+className="
+text-xs
+text-slate-400
+"
+>
+{demo.email}
+</div>
+
+
+</button>
+
+
+)
+
+)
+}
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+);
+
+
 }
