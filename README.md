@@ -125,7 +125,7 @@ AUTH_SECRET=your_secret
 npx prisma generate
 ```
 
-### Run database migrations (if applicable)
+### Run database migrations 
 
 ```bash
 npx prisma db push
