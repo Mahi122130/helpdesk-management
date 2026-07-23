@@ -1,101 +1,197 @@
+"use client";
+
+
+import Link from "next/link";
+import {usePathname} from "next/navigation";
+
 import {
 LayoutDashboard,
 Ticket,
+PlusCircle,
 Users,
+ChartBar,
 Settings
 } from "lucide-react";
 
 
-export default function Sidebar(){
+type Role =
+"MANAGER" |
+"TECHNICAL" |
+"EMPLOYEE";
+
+
+const menu = {
+
+
+MANAGER:[
+{
+name:"Dashboard",
+href:"/dashboard",
+icon:LayoutDashboard
+},
+
+{
+name:"All Tickets",
+href:"/tickets",
+icon:Ticket
+},
+
+{
+name:"Users",
+href:"/users",
+icon:Users
+},
+
+{
+name:"Reports",
+href:"/reports",
+icon:ChartBar
+}
+
+],
+
+
+
+TECHNICAL:[
+{
+name:"Dashboard",
+href:"/dashboard",
+icon:LayoutDashboard
+},
+
+{
+name:"Assigned Tickets",
+href:"/tickets",
+icon:Ticket
+}
+
+],
+
+
+
+EMPLOYEE:[
+{
+name:"Dashboard",
+href:"/dashboard",
+icon:LayoutDashboard
+},
+
+{
+name:"My Tickets",
+href:"/tickets",
+icon:Ticket
+},
+
+{
+name:"Create Ticket",
+href:"/tickets/create",
+icon:PlusCircle
+}
+
+]
+
+};
+
+
+
+export default function Sidebar({
+
+role
+
+}:{
+role:Role
+}){
+
+
+const pathname = usePathname();
+
 
 return (
 
 <aside
 className="
-hidden
-md:flex
-w-64
-min-h-screen
-bg-slate-900
+fixed
+left-0
+top-0
+h-screen
+w-72
+bg-slate-950
 border-r
 border-white/10
 p-6
-flex-col
 "
 >
 
 
 <h1
 className="
-text-xl
+text-2xl
 font-bold
+text-white
 mb-10
 "
 >
 
-HelpDesk
+HelpDesk Pro
 
 </h1>
 
 
 
-<nav
-className="
-space-y-3
-"
->
+<nav className="space-y-2">
 
 
 {
-[
-{
-name:"Dashboard",
-icon:LayoutDashboard
-},
-{
-name:"Tickets",
-icon:Ticket
-},
-{
-name:"Users",
-icon:Users
-},
-{
-name:"Settings",
-icon:Settings
-}
-
-].map(item=>{
+menu[role].map((item)=>{
 
 
 const Icon=item.icon;
 
 
+const active =
+pathname.startsWith(item.href);
+
+
+
 return (
 
-<div
+<Link
 
-key={item.name}
+key={item.href}
 
-className="
+href={item.href}
+
+className={`
 flex
 items-center
 gap-3
+px-4
+py-3
 rounded-xl
-p-3
-text-slate-300
-hover:bg-white/10
-cursor-pointer
-"
+
+${
+active
+
+?
+"bg-blue-600 text-white"
+
+:
+
+"text-slate-400 hover:bg-white/10"
+
+}
+
+`}
 
 >
+
 
 <Icon size={20}/>
 
 {item.name}
 
 
-</div>
+</Link>
 
 )
 
@@ -106,6 +202,7 @@ cursor-pointer
 
 
 </nav>
+
 
 
 </aside>

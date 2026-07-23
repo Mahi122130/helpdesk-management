@@ -1,45 +1,59 @@
 import { cookies } from "next/headers";
-import { verifyToken } from "./jwt";
+import { verifyToken } from "@/lib/auth/jwt";
 import { prisma } from "@/lib/prisma";
 
 
-export async function getCurrentUser(){
-
-    const cookieStore = await cookies();
-
-    const token =
-        cookieStore.get("token")?.value;
+export async function getCurrentUser() {
 
 
-    if(!token){
-        return null;
-    }
+  const cookieStore = await cookies();
 
 
-    try{
-
-        const payload =
-            await verifyToken(token);
+  const token =
+    cookieStore.get("token")?.value;
 
 
-        const user =
-            await prisma.user.findUnique({
 
-                where:{
-                    id:
-                    payload.id as string
-                }
+  if(!token){
 
-            });
+    return null;
+
+  }
 
 
-        return user;
+
+  const payload =
+    await verifyToken(token);
 
 
-    }catch(error){
 
-        return null;
+  if(!payload){
 
-    }
+    return null;
+
+  }
+
+
+
+  const user =
+    await prisma.user.findUnique({
+
+      where:{
+        id: payload.id as string
+      },
+
+      select:{
+        id:true,
+        name:true,
+        email:true,
+        role:true
+      }
+
+    });
+
+
+
+  return user;
+
 
 }
