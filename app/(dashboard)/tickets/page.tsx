@@ -1,438 +1,664 @@
-import Link from "next/link";
-import { Plus, Ticket as TicketIcon } from "lucide-react";
-
-import { getCurrentUser } from "@/lib/auth/currentUser";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth/currentUser";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
+import TicketFilters from "@/components/tickets/TicketFilters";
 
-export default async function TicketsPage() {
 
 
-  const user = await getCurrentUser();
+export default async function TicketsPage({
 
+searchParams
 
-  if (!user) {
-    redirect("/login");
-  }
+}:{
 
+searchParams: Promise<{
 
+search?: string;
 
-  let tickets;
+status?: string;
 
+priority?: string;
 
+category?: string;
 
-  if (user.role === "EMPLOYEE") {
+assignedTo?: string;
 
+sort?: string;
 
-    tickets = await prisma.ticket.findMany({
+}>
 
-      where:{
-        createdById:user.id
-      },
+}){
 
-      include:{
-        createdBy:true,
-        assignedTo:true
-      },
 
-      orderBy:{
-        createdAt:"desc"
-      }
 
-    });
+const params = await searchParams;
 
 
-  } else if (user.role === "TECHNICAL") {
 
+const user = await getCurrentUser();
 
-    tickets = await prisma.ticket.findMany({
 
-      where:{
-        assignedToId:user.id
-      },
 
-      include:{
-        createdBy:true,
-        assignedTo:true
-      },
+if(!user){
 
-      orderBy:{
-        createdAt:"desc"
-      }
+redirect("/login");
 
-    });
+}
 
 
 
-  } else {
 
 
-    // Manager sees all tickets
 
-    tickets = await prisma.ticket.findMany({
 
-      include:{
-        createdBy:true,
-        assignedTo:true
-      },
+const where:any = {};
 
-      orderBy:{
-        createdAt:"desc"
-      }
 
-    });
 
 
-  }
 
+// =====================
+// ROLE ACCESS CONTROL
+// =====================
 
 
-  return (
+// Employee only sees own tickets
 
-    <div
-      className="
-      min-h-screen
-      bg-slate-950
-      p-6
-      "
-    >
+if(user.role === "EMPLOYEE"){
 
+where.createdById = user.id;
 
+}
 
-      <div className="max-w-7xl mx-auto">
 
 
+// Technical only sees assigned tickets
 
-        {/* Header */}
+if(user.role === "TECHNICAL"){
 
-        <div
-          className="
-          flex
-          items-center
-          justify-between
-          mb-8
-          "
-        >
+where.assignedToId = user.id;
 
+}
 
-          <div>
 
 
-            <h1
-              className="
-              text-3xl
-              font-bold
-              text-white
-              "
-            >
 
-              {
-                user.role === "MANAGER"
-                ?
-                "All Tickets"
-                :
-                user.role === "TECHNICAL"
-                ?
-                "Assigned Tickets"
-                :
-                "My Tickets"
-              }
 
-            </h1>
 
 
 
-            <p
-              className="
-              text-slate-400
-              mt-2
-              "
-            >
+// =====================
+// FILTERS
+// =====================
 
-              Manage and track support requests
 
-            </p>
 
+if(params.search){
 
-          </div>
+where.title = {
 
+contains: params.search,
 
+mode:"insensitive"
 
+};
 
-          {
-            user.role === "EMPLOYEE" && (
+}
 
-              <Link
-                href="/tickets/create"
-                className="
-                flex
-                items-center
-                gap-2
-                rounded-xl
-                bg-blue-600
-                px-5
-                py-3
-                text-white
-                font-medium
-                hover:bg-blue-700
-                transition
-                "
-              >
 
-                <Plus size={18}/>
 
-                New Ticket
 
-              </Link>
+if(params.status){
 
-            )
-          }
+where.status = params.status;
 
+}
 
 
-        </div>
 
 
+if(params.priority){
 
+where.priority = params.priority;
 
+}
 
-        {/* Tickets */}
 
-        {
-          tickets.length === 0 ? (
 
-            <div
-              className="
-              rounded-3xl
-              border
-              border-white/10
-              bg-white/5
-              p-10
-              text-center
-              "
-            >
 
-              <TicketIcon
-                className="
-                mx-auto
-                text-slate-400
-                mb-4
-                "
-                size={40}
-              />
 
+if(params.category){
 
-              <h2
-                className="
-                text-xl
-                font-semibold
-                text-white
-                "
-              >
+where.category = params.category;
 
-                No tickets found
+}
 
-              </h2>
 
 
-              <p
-                className="
-                text-slate-400
-                mt-2
-                "
-              >
 
-                There are no tickets available yet.
 
-              </p>
 
+// Manager only assigned filter
 
-            </div>
+if(
+params.assignedTo &&
+user.role === "MANAGER"
+){
 
+where.assignedToId = params.assignedTo;
 
-          ) : (
+}
 
 
-            <div
-              className="
-              grid
-              md:grid-cols-2
-              xl:grid-cols-3
-              gap-6
-              "
-            >
 
 
-              {
-                tickets.map((ticket)=>(
 
 
-                  <Link
-                    key={ticket.id}
-                    href={`/tickets/${ticket.id}`}
-                    className="
-                    rounded-3xl
-                    border
-                    border-white/10
-                    bg-white/5
-                    backdrop-blur-xl
-                    p-6
-                    hover:border-blue-500/50
-                    transition
-                    "
-                  >
 
 
 
-                    <div
-                      className="
-                      flex
-                      justify-between
-                      items-start
-                      "
-                    >
+// =====================
+// SORT
+// =====================
 
 
-                      <h3
-                        className="
-                        text-lg
-                        font-semibold
-                        text-white
-                        "
-                      >
+let orderBy:any = {
 
-                        {ticket.title}
+createdAt:"desc"
 
-                      </h3>
+};
 
 
-                      <span
-                        className="
-                        text-xs
-                        rounded-full
-                        bg-blue-500/20
-                        px-3
-                        py-1
-                        text-blue-300
-                        "
-                      >
 
-                        {ticket.status}
+if(params.sort==="priority"){
 
-                      </span>
+orderBy = {
 
+priority:"desc"
 
-                    </div>
+};
 
+}
 
 
 
-                    <p
-                      className="
-                      text-slate-400
-                      text-sm
-                      mt-3
-                      line-clamp-3
-                      "
-                    >
 
-                      {ticket.description}
+if(params.sort==="status"){
 
-                    </p>
+orderBy = {
 
+status:"asc"
 
+};
 
+}
 
-                    <div
-                      className="
-                      mt-5
-                      space-y-2
-                      text-sm
-                      "
-                    >
 
 
-                      <p className="text-slate-300">
 
-                        Priority:
-                        <span className="ml-2 text-white">
+if(params.sort==="date"){
 
-                          {ticket.priority}
+orderBy = {
 
-                        </span>
+createdAt:"desc"
 
-                      </p>
+};
 
+}
 
 
-                      <p className="text-slate-300">
 
-                        Category:
-                        <span className="ml-2 text-white">
 
-                          {ticket.category}
 
-                        </span>
 
-                      </p>
 
 
 
-                      <p className="text-slate-300">
+// =====================
+// GET TICKETS
+// =====================
 
-                        Created by:
-                        <span className="ml-2 text-white">
 
-                          {ticket.createdBy.name}
+const tickets =
+await prisma.ticket.findMany({
 
-                        </span>
+where,
 
-                      </p>
 
+include:{
 
 
-                      <p className="text-slate-300">
+createdBy:true,
 
-                        Assigned:
-                        <span className="ml-2 text-white">
 
-                          {
-                            ticket.assignedTo?.name ??
-                            "Not assigned"
-                          }
+assignedTo:true
 
-                        </span>
 
-                      </p>
+},
 
 
+orderBy
 
-                    </div>
 
+});
 
 
 
-                  </Link>
 
 
-                ))
-              }
 
 
-            </div>
 
 
-          )
-        }
 
 
+// =====================
+// TECHNICIANS
+// MANAGER ONLY
+// =====================
 
-      </div>
 
+const technicians =
 
-    </div>
+user.role === "MANAGER"
 
-  );
+?
+
+await prisma.user.findMany({
+
+where:{
+
+role:"TECHNICAL"
+
+},
+
+
+select:{
+
+id:true,
+
+name:true
+
+}
+
+})
+
+:
+
+[];
+
+
+
+
+
+
+
+
+
+return (
+
+<div
+
+className="
+min-h-screen
+bg-slate-950
+p-6
+"
+
+>
+
+
+<div
+
+className="
+max-w-7xl
+mx-auto
+space-y-6
+"
+
+>
+
+
+
+<div>
+
+<h1
+
+className="
+text-3xl
+font-bold
+text-white
+"
+
+>
+
+Tickets
+
+</h1>
+
+
+
+<p
+
+className="
+text-slate-400
+mt-2
+"
+
+>
+
+Manage and track helpdesk requests
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+<TicketFilters
+
+
+technicians={technicians}
+
+
+
+showAssignedFilter={
+
+user.role === "MANAGER"
+
+}
+
+
+
+role={
+
+user.role
+
+}
+
+
+/>
+
+
+
+
+
+
+
+
+
+<div
+
+className="
+space-y-4
+"
+
+>
+
+
+{
+
+tickets.length === 0 ? (
+
+
+<div
+
+className="
+rounded-2xl
+border
+border-white/10
+bg-white/5
+p-8
+text-center
+text-slate-400
+"
+
+>
+
+No tickets found
+
+</div>
+
+
+)
+
+:
+
+(
+
+
+tickets.map(ticket=>(
+
+
+<Link
+
+
+key={ticket.id}
+
+
+href={`/tickets/${ticket.id}`}
+
+
+className="
+block
+rounded-2xl
+border
+border-white/10
+bg-white/5
+p-5
+hover:bg-white/10
+transition
+"
+
+>
+
+
+
+
+<div
+
+className="
+flex
+justify-between
+items-start
+"
+
+>
+
+
+
+
+<div>
+
+
+<h2
+
+className="
+text-lg
+font-semibold
+text-white
+"
+
+>
+
+{ticket.title}
+
+</h2>
+
+
+
+<p
+
+className="
+text-sm
+text-slate-400
+mt-1
+"
+
+>
+
+{ticket.ticketNumber}
+
+</p>
+
+
+
+
+
+
+<div
+
+className="
+flex
+gap-4
+mt-3
+text-sm
+"
+
+>
+
+
+<span className="text-slate-300">
+
+{ticket.category}
+
+</span>
+
+
+
+<span className="text-yellow-300">
+
+{ticket.priority}
+
+</span>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div
+
+className="
+text-right
+"
+
+>
+
+
+
+<p
+
+className="
+text-blue-300
+font-medium
+"
+
+>
+
+{ticket.status}
+
+</p>
+
+
+
+
+
+<p
+
+className="
+text-sm
+text-slate-400
+mt-2
+"
+
+>
+
+Assigned:
+
+{" "}
+
+{
+
+ticket.assignedTo?.name ??
+
+"Not assigned"
+
+}
+
+
+</p>
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+</Link>
+
+
+))
+
+
+)
+
+}
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+</div>
+
+
+</div>
+
+
+);
 
 }

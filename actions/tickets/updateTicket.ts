@@ -21,20 +21,16 @@ const user = await getCurrentUser();
 
 
 if(!user){
- throw new Error("Unauthorized");
+
+throw new Error("Unauthorized");
+
 }
 
 
 
-if(user.role !== "MANAGER"){
- throw new Error("Only managers can update tickets");
-}
 
 
-
-
-const oldTicket =
-await prisma.ticket.findUnique({
+const oldTicket = await prisma.ticket.findUnique({
 
 where:{
 id:ticketId
@@ -45,9 +41,123 @@ id:ticketId
 
 
 if(!oldTicket){
- throw new Error("Ticket not found");
+
+throw new Error("Ticket not found");
+
 }
 
+
+
+
+
+
+// ===============================
+// PERMISSION CHECKS
+// ===============================
+
+
+
+// MANAGER
+// Can update everything
+
+if(user.role === "MANAGER"){
+
+
+// allowed
+
+
+}
+
+
+
+
+// TECHNICAL EMPLOYEE
+// Can only update assigned tickets
+
+else if(user.role === "TECHNICAL"){
+
+
+
+if(oldTicket.assignedToId !== user.id){
+
+throw new Error(
+"Only assigned technician can update this ticket"
+);
+
+}
+
+
+
+if(
+data.status !== "IN_PROGRESS" &&
+data.status !== "RESOLVED"
+){
+
+throw new Error(
+"Technicians can only change ticket progress"
+);
+
+}
+
+
+
+}
+
+
+
+
+// EMPLOYEE
+// Can only confirm resolution
+
+else if(user.role === "EMPLOYEE"){
+
+
+
+if(
+oldTicket.createdById !== user.id
+){
+
+throw new Error(
+"You can only update your own tickets"
+);
+
+}
+
+
+
+if(
+data.status !== "CLOSED" ||
+oldTicket.status !== "RESOLVED"
+){
+
+throw new Error(
+"Only resolved tickets can be confirmed"
+);
+
+}
+
+
+}
+
+
+
+else{
+
+throw new Error("Invalid role");
+
+}
+
+
+
+
+
+
+
+
+
+// ===============================
+// UPDATE TICKET
+// ===============================
 
 
 await prisma.ticket.update({
@@ -64,51 +174,86 @@ data
 
 
 
+
+
+
+// ===============================
+// HISTORY
+// ===============================
+
+
+
 if(data.priority){
+
 
 await prisma.ticketHistory.create({
 
 data:{
 
+
 ticketId,
+
 
 actorId:user.id,
 
+
 action:
+
 `Priority changed from ${oldTicket.priority} to ${data.priority}`
+
 
 }
 
 });
 
+
 }
+
+
+
+
 
 
 
 if(data.status){
 
+
 await prisma.ticketHistory.create({
 
 data:{
 
+
 ticketId,
+
 
 actorId:user.id,
 
+
 action:
+
 `Status changed from ${oldTicket.status} to ${data.status}`
+
 
 }
 
 });
 
+
 }
+
+
+
 
 
 
 
 revalidatePath(
 `/tickets/${ticketId}`
+);
+
+
+revalidatePath(
+"/dashboard"
 );
 
 

@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   User,
-  Clock,
   Tag,
   AlertCircle
 } from "lucide-react";
@@ -48,9 +47,7 @@ redirect("/login");
 
 
 
-
-const ticket =
-await prisma.ticket.findUnique({
+const ticket = await prisma.ticket.findUnique({
 
 where:{
 id
@@ -66,7 +63,6 @@ assignedTo:true,
 
 
 comments:{
-
 include:{
 author:true
 },
@@ -79,7 +75,6 @@ createdAt:"desc"
 
 
 history:{
-
 include:{
 actor:true
 },
@@ -97,7 +92,6 @@ createdAt:"desc"
 
 
 
-
 if(!ticket){
 
 notFound();
@@ -107,9 +101,7 @@ notFound();
 
 
 
-
-const technicians =
-await prisma.user.findMany({
+const technicians = await prisma.user.findMany({
 
 where:{
 role:"TECHNICAL"
@@ -131,25 +123,20 @@ email:true
 
 
 
-
 return (
 
-<div
-className="
+<div className="
 min-h-screen
 bg-slate-950
 p-6
-"
->
+">
 
 
-<div
-className="
+<div className="
 max-w-6xl
 mx-auto
 space-y-6
-"
->
+">
 
 
 
@@ -177,58 +164,42 @@ Back to tickets
 
 
 
+{/* Ticket Information */}
 
-
-
-
-{/* MAIN TICKET */}
-
-
-<div
-className="
+<div className="
 rounded-3xl
 border
 border-white/10
 bg-white/5
 backdrop-blur-xl
 p-8
-"
->
+">
 
 
 
-<div
-className="
+<div className="
 flex
 justify-between
 items-start
-"
->
-
-
+">
 
 <div>
 
-
-<h1
-className="
+<h1 className="
 text-3xl
 font-bold
 text-white
-"
->
+">
 
 {ticket.title}
 
 </h1>
 
 
-<p
-className="
+<p className="
 text-slate-400
 mt-2
-"
->
+">
 
 {ticket.ticketNumber}
 
@@ -239,21 +210,17 @@ mt-2
 
 
 
-
-<span
-className="
+<span className="
 rounded-full
 bg-blue-500/20
 px-4
 py-2
 text-blue-300
-"
->
+">
 
 {ticket.status}
 
 </span>
-
 
 
 </div>
@@ -263,16 +230,12 @@ text-blue-300
 
 
 
-
-
-<div
-className="
+<div className="
 grid
 md:grid-cols-2
 gap-6
 mt-8
-"
->
+">
 
 
 
@@ -288,7 +251,6 @@ value={ticket.createdBy.name}
 
 
 
-
 <Info
 
 icon={<User size={16}/>}
@@ -296,12 +258,10 @@ icon={<User size={16}/>}
 label="Assigned To"
 
 value={
-ticket.assignedTo?.name ??
-"Not Assigned"
+ticket.assignedTo?.name ?? "Not Assigned"
 }
 
 />
-
 
 
 
@@ -314,7 +274,6 @@ label="Priority"
 value={ticket.priority}
 
 />
-
 
 
 
@@ -337,39 +296,29 @@ value={ticket.category}
 
 
 
-
-
-
-{/* MANAGER ACTIONS */}
-
-
+{/* Manager Controls */}
 
 {
 
 user.role==="MANAGER" && (
 
-<div
-className="
+<div className="
 mt-8
 border-t
 border-white/10
 pt-6
 space-y-6
-"
->
-
+">
 
 
 <div>
 
 
-<h3
-className="
+<h3 className="
 text-white
 font-semibold
 mb-3
-"
->
+">
 
 Assign Technician
 
@@ -395,13 +344,11 @@ technicians={technicians}
 <div>
 
 
-<h3
-className="
+<h3 className="
 text-white
 font-semibold
 mb-3
-"
->
+">
 
 Ticket Controls
 
@@ -413,12 +360,15 @@ Ticket Controls
 
 ticketId={ticket.id}
 
+currentStatus={ticket.status}
+
+currentPriority={ticket.priority}
+
 />
 
 
 
 </div>
-
 
 
 
@@ -434,34 +384,25 @@ ticketId={ticket.id}
 
 
 
-
-
-
-{/* TECHNICIAN ACTIONS */}
-
-
+{/* Technical Actions */}
 
 {
 
 user.role==="TECHNICAL" && (
 
-<div
-className="
+<div className="
 mt-8
 border-t
 border-white/10
 pt-6
-"
->
+">
 
 
-<h3
-className="
+<h3 className="
 text-white
 font-semibold
 mb-3
-"
->
+">
 
 Technician Actions
 
@@ -478,9 +419,7 @@ status={ticket.status}
 />
 
 
-
 </div>
-
 
 )
 
@@ -492,37 +431,30 @@ status={ticket.status}
 
 
 
-
-
-{/* EMPLOYEE CONFIRMATION */}
-
-
+{/* Employee Resolution */}
 
 {
 
 user.role==="EMPLOYEE" && (
 
-<div
-className="
+<div className="
 mt-8
 border-t
 border-white/10
 pt-6
-"
->
+">
 
 
-<h3
-className="
+<h3 className="
 text-white
 font-semibold
 mb-3
-"
->
+">
 
 Resolution
 
 </h3>
+
 
 
 <EmployeeActions
@@ -546,36 +478,26 @@ status={ticket.status}
 
 
 
+{/* Description */}
+
+<div className="mt-8">
 
 
-
-<div
-className="
-mt-8
-"
->
-
-
-<h2
-className="
+<h2 className="
 text-white
 font-semibold
 mb-3
-"
->
+">
 
 Description
 
 </h2>
 
 
-
-<p
-className="
+<p className="
 text-slate-300
 leading-relaxed
-"
->
+">
 
 {ticket.description}
 
@@ -586,7 +508,6 @@ leading-relaxed
 
 
 
-
 </div>
 
 
@@ -596,36 +517,28 @@ leading-relaxed
 
 
 
-
-{/* ACTIVITY */}
-
+{/* Timeline */}
 
 
-<div
-className="
+<div className="
 rounded-3xl
 border
 border-white/10
 bg-white/5
 p-8
-"
->
+">
 
 
-
-<h2
-className="
+<h2 className="
 text-xl
 font-bold
 text-white
 mb-6
-"
->
+">
 
 Activity Timeline
 
 </h2>
-
 
 
 
@@ -645,11 +558,8 @@ No activity yet
 
 :
 
-<div
-className="
-space-y-5
-"
->
+
+<div className="space-y-5">
 
 
 {
@@ -665,20 +575,39 @@ className="
 border-l-2
 border-blue-500
 pl-5
-"
->
-
+">
 
 
 <p className="text-white">
 
 {item.action}
 
+
+{
+item.oldValue &&
+item.newValue &&
+(
+
+<span>
+
+{" "}
+from {item.oldValue} → {item.newValue}
+
+</span>
+
+)
+
+}
+
+
 </p>
 
 
 
-<p className="text-sm text-slate-400">
+<p className="
+text-sm
+text-slate-400
+">
 
 {item.actor.name}
 
@@ -686,16 +615,14 @@ pl-5
 
 
 
-<p className="text-xs text-slate-500">
+<p className="
+text-xs
+text-slate-500
+">
 
-{
-new Date(
-item.createdAt
-).toLocaleString()
-}
+{new Date(item.createdAt).toLocaleString()}
 
 </p>
-
 
 
 </div>
@@ -706,7 +633,6 @@ item.createdAt
 }
 
 
-
 </div>
 
 
@@ -722,37 +648,28 @@ item.createdAt
 
 
 
+{/* Comments */}
 
 
-{/* COMMENTS */}
-
-
-
-<div
-className="
+<div className="
 rounded-3xl
 border
 border-white/10
 bg-white/5
 p-8
-"
->
+">
 
 
-
-<h2
-className="
+<h2 className="
 text-xl
 font-bold
 text-white
 mb-6
-"
->
+">
 
 Comments / Updates
 
 </h2>
-
 
 
 
@@ -772,6 +689,7 @@ No comments yet
 
 :
 
+
 <div className="space-y-4">
 
 
@@ -788,8 +706,7 @@ className="
 rounded-xl
 bg-white/5
 p-4
-"
->
+">
 
 
 <p className="text-white">
@@ -800,13 +717,11 @@ p-4
 
 
 
-<p
-className="
+<p className="
 text-sm
 text-slate-400
 mt-2
-"
->
+">
 
 {comment.author.name}
 
@@ -819,6 +734,7 @@ mt-2
 
 ))
 
+
 }
 
 
@@ -830,15 +746,11 @@ mt-2
 
 
 
-
-{/* Manager + Technical can comment */}
-
+{/* Only technical employees comment */}
 
 {
 
-(user.role==="MANAGER" ||
- user.role==="TECHNICAL") && (
-
+user.role==="TECHNICAL" && (
 
 <div className="mt-6">
 
@@ -852,7 +764,6 @@ ticketId={ticket.id}
 
 </div>
 
-
 )
 
 }
@@ -860,8 +771,6 @@ ticketId={ticket.id}
 
 
 </div>
-
-
 
 
 
@@ -876,6 +785,7 @@ ticketId={ticket.id}
 );
 
 }
+
 
 
 
@@ -902,13 +812,11 @@ value:string;
 
 return (
 
-<div
-className="
+<div className="
 flex
 items-center
 gap-3
-"
->
+">
 
 
 <div className="text-blue-400">
@@ -922,25 +830,32 @@ gap-3
 <div>
 
 
-<p className="text-sm text-slate-400">
+<p className="
+text-sm
+text-slate-400
+">
 
 {label}
 
 </p>
 
 
-<p className="text-white">
+
+<p className="
+text-white
+">
 
 {value}
 
 </p>
 
 
-</div>
-
-
 
 </div>
+
+
+</div>
+
 
 )
 

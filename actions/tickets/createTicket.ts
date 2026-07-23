@@ -7,28 +7,29 @@ import {
     createTicketSchema
 } from "@/schemas/ticket";
 
-
 import {
     revalidatePath
 } from "next/cache";
-
 
 import {
     getCurrentUser
 } from "@/lib/auth/currentUser";
 
+import {
+    generateTicketNumber
+} from "@/lib/tickets/generateTicketNumber";
+
 
 
 export async function createTicketAction(
-data:unknown
+    data: unknown
 ){
 
 
 try{
 
 
-const user =
-await getCurrentUser();
+const user = await getCurrentUser();
 
 
 
@@ -44,6 +45,24 @@ error:"Unauthorized"
 
 
 
+// Only employees can create tickets
+
+if(user.role !== "EMPLOYEE"){
+
+return {
+
+success:false,
+
+error:"Only employees can create tickets"
+
+};
+
+}
+
+
+
+
+
 const validated =
 createTicketSchema.safeParse(data);
 
@@ -55,7 +74,7 @@ return {
 
 success:false,
 
-error:"Invalid data"
+error:"Invalid ticket data"
 
 };
 
@@ -65,10 +84,21 @@ error:"Invalid data"
 
 
 
+const ticketNumber =
+await generateTicketNumber();
+
+
+
+
+
+
 const ticket =
 await prisma.ticket.create({
 
 data:{
+
+
+ticketNumber,
 
 
 title:
@@ -90,14 +120,13 @@ validated.data.priority,
 createdById:user.id,
 
 
-ticketNumber:
-`TKT-${Date.now()}`
-
+// status automatically OPEN from Prisma default
 
 
 }
 
 });
+
 
 
 
@@ -122,40 +151,56 @@ newValue:"OPEN"
 
 }
 
-
 });
+
+
+
 
 
 
 
 revalidatePath("/tickets");
 
+revalidatePath("/dashboard");
 
 
-return{
+
+return {
+
 
 success:true,
 
+
 data:ticket
 
+
 };
+
+
 
 
 
 }catch(error){
 
 
-console.error(error);
+console.error(
+"Create ticket error:",
+error
+);
 
 
 
-return{
+return {
+
 
 success:false,
 
-error:"Something went wrong"
+
+error:"Something went wrong while creating ticket"
+
 
 };
+
 
 
 }

@@ -1,4 +1,5 @@
-import Sidebar from "../../components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/Sidebar";
+
 import { getCurrentUser } from "@/lib/auth/currentUser";
 import { redirect } from "next/navigation";
 
@@ -18,15 +19,28 @@ export default async function DashboardLayout({
   }
 
 
-
   return (
 
-    <div className="min-h-screen bg-slate-950">
+    <div
+      className="
+      min-h-screen
+      bg-slate-950
+      "
+    >
 
-      <Sidebar role={user.role}/>
+
+      {/* Sidebar */}
+      <Sidebar role={user.role} />
 
 
-      <main className="ml-72">
+
+      <main
+        className="
+        md:ml-72
+        min-h-screen
+        p-4
+        "
+      >
 
         {children}
 

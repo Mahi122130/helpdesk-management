@@ -1,106 +1,62 @@
-import {
-getCurrentUser
-} from "@/lib/auth/currentUser";
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth/currentUser";
+import { redirect } from "next/navigation";
 
 
-import {
-getDashboardStats
-} from "@/lib/services/dashboard";
-
-
-import DashboardCards
-from "@/components/dashboard/DashboardCards";
-
+import ManagerDashboard from "../../../components/dashboard/ManagerDashboard";
+import TechnicalDashboard from "../../../components/dashboard/TechnicalDashboard";
+import EmployeeDashboard from "../../../components/dashboard/EmployeeDashboard";
 
 
 
 export default async function DashboardPage(){
 
 
-
-const user =
-await getCurrentUser();
+const user = await getCurrentUser();
 
 
 
 if(!user){
 
-return null;
+redirect("/login");
 
 }
 
 
 
 
-const stats =
-await getDashboardStats(
 
-user.id,
+if(user.role==="MANAGER"){
 
-user.role
+return (
 
-);
+<ManagerDashboard/>
 
+)
+
+}
+
+
+
+
+if(user.role==="TECHNICAL"){
+
+return (
+
+<TechnicalDashboard/>
+
+)
+
+}
 
 
 
 
 return (
 
-<div
+<EmployeeDashboard/>
 
-className="
-space-y-8
-"
+)
 
->
-
-
-<div>
-
-<h1
-
-className="
-text-3xl
-font-bold
-"
-
->
-
-Dashboard
-
-</h1>
-
-
-<p
-
-className="
-text-slate-400
-"
-
->
-
-Welcome back {user.name}
-
-</p>
-
-
-</div>
-
-
-
-
-<DashboardCards
-
-stats={stats}
-
-/>
-
-
-
-</div>
-
-
-);
 
 }

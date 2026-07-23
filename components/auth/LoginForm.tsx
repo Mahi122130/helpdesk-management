@@ -1,128 +1,101 @@
 "use client";
 
-
 import {
-useState
+  useState
 } from "react";
 
-
 import {
-useRouter
+  useRouter
 } from "next/navigation";
 
+import Link from "next/link";
 
 import {
-loginAction
+  loginAction
 } from "@/actions/auth/login";
 
-
 import {
-Mail,
-Lock,
-Eye,
-EyeOff,
-Headphones
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Headphones
 } from "lucide-react";
 
 
+const demos = [
 
+  {
+    name: "Manager",
+    email: "manager1@company.com"
+  },
 
-const demos=[
+  {
+    name: "Technical",
+    email: "tech1@company.com"
+  },
 
-{
-name:"Manager",
-email:"manager1@company.com"
-},
-
-{
-name:"Technical",
-email:"tech1@company.com"
-},
-
-{
-name:"Employee",
-email:"emp1@company.com"
-}
+  {
+    name: "Employee",
+    email: "emp1@company.com"
+  }
 
 ];
-
-
 
 
 export default function LoginForm(){
 
 
-const router =
-useRouter();
+  const router = useRouter();
+
+
+  const [email,setEmail] = useState("");
+
+  const [password,setPassword] = useState("");
+
+  const [show,setShow] = useState(false);
+
+  const [error,setError] = useState("");
+
+  const [loading,setLoading] = useState(false);
 
 
 
-const [email,setEmail]
-=
-useState("");
+  async function submit(
+    e:React.FormEvent
+  ){
 
-const [password,setPassword]
-=
-useState("");
-
-const [show,setShow]
-=
-useState(false);
+    e.preventDefault();
 
 
-const [error,setError]
-=
-useState("");
+    setError("");
 
-const [loading,setLoading]
-=
-useState(false);
+    setLoading(true);
 
 
 
-
-async function submit(
-e:React.FormEvent
-){
-
-e.preventDefault();
-
-
-setError("");
-
-setLoading(true);
+    const result = await loginAction(
+      email,
+      password
+    );
 
 
 
-const result =
-await loginAction(
-email,
-password
-);
+    if(result.error){
+
+      setError(result.error);
+
+      setLoading(false);
+
+      return;
+
+    }
 
 
 
-if(result.error){
+    router.push("/dashboard");
 
-setError(
-result.error
-);
-
-setLoading(false);
-
-return;
-
-}
-
-
-
-router.push(
-"/dashboard"
-);
-
-
-
-}
+  }
 
 
 
@@ -143,6 +116,7 @@ shadow-2xl
 backdrop-blur-xl
 "
 >
+
 
 
 <div
@@ -172,10 +146,11 @@ className="text-white"
 size={32}
 />
 
-
 </div>
 
 </div>
+
+
 
 
 
@@ -208,6 +183,9 @@ Enterprise Ticket Management
 
 
 
+
+
+
 <form
 onSubmit={submit}
 className="
@@ -218,7 +196,10 @@ space-y-5
 
 
 
+
+
 <div>
+
 
 <label
 className="
@@ -226,8 +207,11 @@ text-white
 text-sm
 "
 >
+
 Email
+
 </label>
+
 
 
 <div
@@ -237,14 +221,18 @@ mt-2
 "
 >
 
+
 <Mail
+
 className="
 absolute
 left-3
 top-3
 text-slate-400
 "
+
 />
+
 
 
 <input
@@ -252,9 +240,7 @@ text-slate-400
 value={email}
 
 onChange={
-e=>setEmail(
-e.target.value
-)
+e=>setEmail(e.target.value)
 }
 
 type="email"
@@ -273,13 +259,19 @@ p-3
 pl-10
 text-white
 outline-none
+placeholder:text-slate-400
 "
 
 />
 
+
+
 </div>
 
 </div>
+
+
+
 
 
 
@@ -287,14 +279,18 @@ outline-none
 
 <div>
 
+
 <label
 className="
 text-white
 text-sm
 "
 >
+
 Password
+
 </label>
+
 
 
 <div
@@ -305,13 +301,16 @@ mt-2
 >
 
 
+
 <Lock
+
 className="
 absolute
 left-3
 top-3
 text-slate-400
 "
+
 />
 
 
@@ -323,9 +322,7 @@ value={password}
 
 
 onChange={
-e=>setPassword(
-e.target.value
-)
+e=>setPassword(e.target.value)
 }
 
 
@@ -355,6 +352,7 @@ pl-10
 pr-10
 text-white
 outline-none
+placeholder:text-slate-400
 "
 
 />
@@ -365,9 +363,7 @@ outline-none
 
 type="button"
 
-onClick={()=>
-setShow(!show)
-}
+onClick={() => setShow(!show)}
 
 className="
 absolute
@@ -378,6 +374,7 @@ text-slate-400
 
 >
 
+
 {
 show
 ?
@@ -385,6 +382,7 @@ show
 :
 <Eye size={18}/>
 }
+
 
 </button>
 
@@ -397,10 +395,15 @@ show
 
 
 
+
+
+
+
 {
 error &&
 
 <div
+
 className="
 rounded-lg
 bg-red-500/20
@@ -408,6 +411,7 @@ p-3
 text-sm
 text-red-300
 "
+
 >
 
 {error}
@@ -415,6 +419,9 @@ text-red-300
 </div>
 
 }
+
+
+
 
 
 
@@ -431,9 +438,11 @@ to-cyan-500
 py-3
 font-semibold
 text-white
+disabled:opacity-50
 "
 
 >
+
 
 {
 loading
@@ -443,7 +452,46 @@ loading
 "Sign In"
 }
 
+
 </button>
+
+
+
+
+
+{/* Create Account */}
+
+<p
+className="
+text-center
+text-sm
+text-slate-300
+mt-5
+"
+>
+
+Don't have an account?
+
+
+<Link
+
+href="/register"
+
+className="
+ml-2
+text-cyan-400
+font-semibold
+hover:text-cyan-300
+"
+
+>
+
+Create Account
+
+</Link>
+
+
+</p>
 
 
 
@@ -453,19 +501,30 @@ loading
 
 
 
+
+
+
+
 <div
 className="mt-8"
 >
 
+
 <p
+
 className="
 text-sm
 text-slate-300
 mb-3
 "
+
 >
+
 Demo Accounts
+
 </p>
+
+
 
 
 
@@ -475,9 +534,11 @@ space-y-2
 "
 >
 
+
 {
 demos.map(
-demo=>(
+
+demo => (
 
 <button
 
@@ -487,13 +548,9 @@ type="button"
 
 onClick={()=>{
 
-setEmail(
-demo.email
-);
+setEmail(demo.email);
 
-setPassword(
-"password123"
-);
+setPassword("password123");
 
 }}
 
@@ -511,15 +568,21 @@ hover:bg-white/10
 
 >
 
+
 {demo.name}
 
+
 <div
+
 className="
 text-xs
 text-slate-400
 "
+
 >
+
 {demo.email}
+
 </div>
 
 
@@ -529,13 +592,18 @@ text-slate-400
 )
 
 )
+
 }
 
 
+
 </div>
 
 
 </div>
+
+
+
 
 
 </div>

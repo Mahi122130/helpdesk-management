@@ -1,17 +1,20 @@
 "use client";
 
-
-import {useTransition} from "react";
-import {toast} from "sonner";
-import {updateTicket} from "@/actions/tickets/updateTicket";
+import { useTransition } from "react";
+import { toast } from "sonner";
+import { updateTicket } from "@/actions/tickets/updateTicket";
 
 
 export default function ManagerActions({
 
-ticketId
+ticketId,
+currentStatus,
+currentPriority
 
 }:{
-ticketId:string
+ticketId:string;
+currentStatus:string;
+currentPriority:string;
 }){
 
 
@@ -27,6 +30,7 @@ startTransition(async()=>{
 
 try{
 
+
 await updateTicket(
 ticketId,
 data
@@ -38,13 +42,17 @@ toast.success(
 );
 
 
+
 }catch(error){
+
 
 toast.error(
 "Update failed"
 );
 
+
 }
+
 
 
 });
@@ -56,22 +64,28 @@ toast.error(
 
 return (
 
-<div
-className="
-space-y-4
-"
->
+<div className="space-y-4">
 
 
 <select
 
 disabled={pending}
 
-onChange={(e)=>
+defaultValue={currentPriority}
+
+onChange={(e)=>{
+
+
+if(e.target.value !== currentPriority){
+
 update({
 priority:e.target.value
-})
+});
+
 }
+
+
+}}
 
 className="
 bg-slate-900
@@ -85,9 +99,6 @@ w-full
 
 >
 
-<option>
-Change Priority
-</option>
 
 <option value="LOW">
 Low
@@ -116,11 +127,23 @@ Critical
 
 disabled={pending}
 
-onChange={(e)=>
+defaultValue={currentStatus}
+
+onChange={(e)=>{
+
+
+if(e.target.value !== currentStatus){
+
+
 update({
 status:e.target.value
-})
+});
+
+
 }
+
+
+}}
 
 className="
 bg-slate-900
@@ -134,25 +157,26 @@ w-full
 
 >
 
-<option>
-Change Status
-</option>
 
 <option value="OPEN">
 Open
 </option>
 
+
 <option value="ASSIGNED">
 Assigned
 </option>
+
 
 <option value="IN_PROGRESS">
 In Progress
 </option>
 
+
 <option value="RESOLVED">
 Resolved
 </option>
+
 
 <option value="CLOSED">
 Closed
@@ -164,6 +188,6 @@ Closed
 
 </div>
 
-)
+);
 
 }
